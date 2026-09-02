@@ -74,10 +74,14 @@ namespace eLibrary.Controllers
         [Route("StartReProcessBook")]
         public async Task<Boolean> StartReProcessBook(byte[] byteData)
         {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                  ?? "Development";
+
             var configuration = new ConfigurationBuilder()
-          .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-          .AddJsonFile("appsettings.json")
-          .Build();
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
+                .Build();
 
             MemoryStream stream = new MemoryStream(byteData);
 

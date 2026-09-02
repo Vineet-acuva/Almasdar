@@ -220,10 +220,14 @@ namespace UserManagement.Controllers
         [Route("GetGraphAccessToken")]
         public static string GetGraphAccessToken()
         {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                  ?? "Development";
+
             var configuration = new ConfigurationBuilder()
-  .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-  .AddJsonFile("appsettings.json")
-  .Build();
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
+                .Build();
             // Read the file path from the configuration
             string TenantId = configuration["AzureAd:TenantId"];
             string ClientId = configuration["AzureAd:ClientId"];
@@ -573,28 +577,7 @@ namespace UserManagement.Controllers
                                select x).First();
                 usrrole.ModifiedDate = DateTime.UtcNow;
                 usrrole.ModifiedBy = user.CreatedBy;
-                _context.SaveChanges();
-                //}
-                //else
-                //{
-                //    foreach (var item in user.RoleIds)
-                //    {
-                //        _context.UserRoleMappings.Add(new UserRoleMapping
-                //        {
-                //            UserId = user.Id,
-                //            RoleId = item,
-                //            CreatedBy = user.CreatedBy,
-                //            CreatedDate = DateTime.UtcNow
-                //        });
-                //        _context.SaveChanges();
-                //    }
-                //    var usr = (from x in _context.Users
-                //               where x.Id == user.Id
-                //               select x).First();
-                //    usr.ModifiedDate = DateTime.UtcNow;
-                //    usr.ModifiedBy = user.CreatedBy;
-                //    _context.SaveChanges();
-                //}
+                _context.SaveChanges(); 
             }
         }
         [HttpPut]
@@ -623,12 +606,7 @@ namespace UserManagement.Controllers
         [HttpGet]
         [Route("GetDetailsByEmailId")]
         public IActionResult GetDetailsByEmailId(string EmailId)
-        {
-            //var id = _context.Users.Where(x => x.EmailId == EmailId && x.IsDeleted == false && x.IsActive == true).Select(x => new
-            //{
-            //    EmailId = x.EmailId,
-            //    requestId = x.Id,
-            //}).FirstOrDefault();
+        {             
             var users = (from ur in _context.UserRoleMappings
                          join u in _context.Users on ur.UserId equals u.Id
                          where (u.IsActive == true && u.IsDeleted == false && u.EmailId == EmailId)

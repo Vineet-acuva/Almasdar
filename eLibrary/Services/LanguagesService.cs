@@ -54,10 +54,14 @@ namespace eLibrary.Services
             //string saasUrl = Convert.ToString(fileClient.GenerateSasUri(Azure.Storage.Sas.DataLakeSasPermissions.Read, DateTime.UtcNow.AddMonths(6)));
             //return saasUrl;
 
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                  ?? "Development";
+
             var configuration = new ConfigurationBuilder()
-       .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-       .AddJsonFile("appsettings.json")
-       .Build();
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
+                .Build();
             // Read the file path from the configuration
 
             string appServiceUrl = configuration["AppServiceUrl"];

@@ -660,10 +660,14 @@ namespace eLibrary.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id, string email, string reason)
         {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                  ?? "Development";
+
             var configuration = new ConfigurationBuilder()
-  .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-  .AddJsonFile("appsettings.json")
-  .Build();
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
+                .Build();
             // Read the file path from the configuration
             string logicAppUrl = configuration["LogicAppUrl"];
 
@@ -971,7 +975,7 @@ namespace eLibrary.Controllers
             }
 
 
-        }
+        }                                                                           
 
         [HttpGet]
         [Route("GetBooksByCategoryFiltersData")]

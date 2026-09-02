@@ -107,418 +107,18 @@ namespace eLibrary.Services
 
             return BlobUrls;
         }
-        //public async Task<string> UploadFiletoBlob_Original(IFormFile item, string blobFolderName, BookModel bookModel)
-        //{
-        //    var configuration = new ConfigurationBuilder()
-        //    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-        //    .AddJsonFile("appsettings.json")
-        //    .Build();
-
-        //    FileInfo fi = new FileInfo(item.FileName);
-        //    string extn = fi.Extension;
-
-        //    string uniqueFolderName = DateTime.UtcNow.Ticks.ToString();
-        //    string uniqueFileName = uniqueFolderName + extn;
-
-        //    Stream myBlob = new MemoryStream();
-        //    myBlob = item.OpenReadStream();
-
-        //    //new method for handling large files
-        //    string newblobFolderName = blobFolderName.Substring(1);
-        //    // Create a new file in the Data Lake store
-        //    var fileClient = fileSystemClient.GetFileClient(newblobFolderName + "/" + uniqueFileName);
-        //    var fileClient2 = fileSystemClient.GetFileClient(newblobFolderName.Replace("/BooksOriginal/", "/Books/") + "/ocr_" + uniqueFileName);
-          
-        //    // Open the source file stream
-        //    using (var sourceStream = myBlob)
-        //    {
-        //        var transferOptions = new StorageTransferOptions
-        //        {
-        //            MaximumTransferSize = 4 * 1024 * 1024,    // Set the maximum transfer size (optional)
-        //            InitialTransferSize = 4 * 1024 * 1024      // Set the initial transfer size (optional)
-
-        //        };
-        //        var uploadOptions = new DataLakeFileUploadOptions
-        //        {
-        //            TransferOptions = transferOptions,
-        //            ProgressHandler = new Progress<long>(progress => Console.WriteLine($"Uploaded {progress} bytes")) // Progress handler (optional)
-        //        };
-        //        await fileClient.UploadAsync(sourceStream, uploadOptions);
-        //    }
-
-        //    //Retrieve the uploaded file properties
-        //    var propertiesNew = await fileClient.GetPropertiesAsync();
-
-        //    //Access the file URL
-        //    var fileUrl = fileClient.Uri.ToString();
-
-        //    //var data = await _dataLakeHandler.UploadFile(myBlob, blobFolderName, item.FileName, item.ContentType);
-
-        //    //For uploading metadata
-        //    //DataLakeDirectoryClient directoryClient = fileSystemClient.GetDirectoryClient(blobFolderName);
-        //    //DataLakeFileClient fileClient = directoryClient.GetFileClient(item.FileName);
-        //    if (blobFolderName.Contains("/BookFile"))
-        //    {
-        //        //Added Making Pdf to searchable pdf logic here
-
-        //        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        //        // Now you should be able to use Windows-1252 encoding
-        //        //Encoding windows1252 = Encoding.GetEncoding(1252);
-        //        Encoding utf16 = Encoding.Unicode; // This is little endian
-
-        //        // Specify the relative path to the font file
-        //        string fontRelativePath = Path.Combine("Font", "Scheherazade-Regular.ttf");
-
-        //        // Combine with the root path to get the full font file path
-        //        string fontFilePath = Path.Combine(_webHostEnvironment.ContentRootPath, fontRelativePath);
-
-        //        // Create a PDF reader for the input PDF
-        //        Stream pdfReaderStream = new MemoryStream();
-        //        pdfReaderStream = item.OpenReadStream();
-        //        iTextSharp.text.pdf.PdfReader pdfReader = new iTextSharp.text.pdf.PdfReader(pdfReaderStream);
-
-        //        // Create a PDF stamper to write content to the output PDF
-        //        //PdfStamper pdfStamper = new PdfStamper(pdfReader, new FileStream(outputFilePath, FileMode.Create));
-
-        //        // Create a MemoryStream to store the output PDF content
-        //        MemoryStream outputStream = new MemoryStream();
-        //        var sw = Stopwatch.StartNew();
-        //        // Create a PdfStamper that writes to the 'outputStream'
-        //        PdfStamper pdfStamper = new PdfStamper(pdfReader, outputStream);
-
-        //        string YourFormRecognizerApiKey = configuration["YourFormRecognizerApiKey"];
-        //        string YourFormRecognizerEndpoint = configuration["YourFormRecognizerEndpoint"];
-
-        //        AzureKeyCredential credential = new AzureKeyCredential(YourFormRecognizerApiKey);
-        //        DocumentAnalysisClient client = new DocumentAnalysisClient(new Uri(YourFormRecognizerEndpoint), credential);
-
-        //        Stream formrecogInputStream = new MemoryStream();
-        //        formrecogInputStream = item.OpenReadStream();
-        //        AnalyzeDocumentOperation operation = await client.AnalyzeDocumentAsync(WaitUntil.Completed, "prebuilt-read", formrecogInputStream);
-        //        AnalyzeResult result = operation.Value;
-
-        //        _logger.LogInformation(
-        //                    $"time taken for OCR {sw.ElapsedMilliseconds} ms");
-        //        sw.Restart();
-        //        // Load a font that supports Arabic (e.g., Arial or Tahoma)
-        //        BaseFont arabicBaseFont = BaseFont.CreateFont(fontFilePath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-                
-        //        if (operation.HasCompleted)
-        //        {
-        //            var recognizedForms = result.Pages;
-        //            // Loop through each page of the PDF
-        //            for (int page = 1; page <= pdfReader.NumberOfPages; page++)
-        //            {
-        //                int rotation = pdfReader.GetPageRotation(page);
-        //                // Get the original page size
-        //                iTextSharp.text.Rectangle originalPageSize = pdfReader.GetPageSize(page);
-
-        //                // Create a new Rectangle with adjusted width and height based on rotation
-        //                iTextSharp.text.Rectangle adjustedPageSize = null;
-
-        //                if (rotation == 90 || rotation == 270)
-        //                {
-        //                    adjustedPageSize = new iTextSharp.text.Rectangle(originalPageSize.Height, originalPageSize.Width);
-        //                }
-        //                else
-        //                {
-        //                    adjustedPageSize = new iTextSharp.text.Rectangle(originalPageSize);
-        //                }
-
-        //                // Get the content of the page
-        //                PdfContentByte pdfContentByte = pdfStamper.GetOverContent(page);
-
-        //                foreach (var word in recognizedForms[page - 1].Lines)
-        //                {
-        //                    try
-        //                    {
-        //                        float xMultiplicationFactor = (float)adjustedPageSize.Width / (float)recognizedForms[page - 1].Width;
-        //                        float yMultiplicationFactor = (float)adjustedPageSize.Height / (float)recognizedForms[page - 1].Height;
-
-        //                        float x = (float)(word.BoundingPolygon[0].X * xMultiplicationFactor);
-        //                        float y = adjustedPageSize.Height - (float)word.BoundingPolygon[0].Y * yMultiplicationFactor - 12; // Invert Y-coordinate
-        //                        float height = (float)(word.BoundingPolygon[2].Y - word.BoundingPolygon[0].Y);
-
-        //                        float textHeight = height * 0.75f; // Adjust the multiplier as needed
-        //                        y -= textHeight / 2; // Center the text vertically within the bounding box
-        //                                             // Ensure that the text remains within the bounding box
-        //                        if (y < 0) y = 0; // Adjust if needed
-
-        //                        // Calculate the actual height of the text bounding box in the PDF
-        //                        float textBoundingBoxHeight = (float)(word.BoundingPolygon[2].Y - word.BoundingPolygon[0].Y);
-
-        //                        // Define a desired font size ratio relative to the text bounding box height
-        //                        float desiredFontSizeRatio = 0.8f; // Adjust this value as needed
-        //                        float fontSize = 0.0f;
-
-        //                        string text = word.Content;
-        //                        // Load a font that supports Arabic (e.g., Arial or Tahoma)
-        //                        // BaseFont arabicBaseFont = BaseFont.CreateFont(fontFilePath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-
-        //                        //Set text rendering mode to invisible
-        //                        pdfContentByte.SetTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_INVISIBLE);
-
-        //                        // Define Arabic text direction (Right-to-Left)
-        //                        string reversedText = String.Empty;
-        //                        string finalText = String.Empty;
-
-        //                        //if (!Regex.IsMatch(text, "^[a-zA-Z0-9]*$"))
-        //                        // Check if the text contains non-ASCII characters
-        //                        if (!Regex.IsMatch(text, @"^[\u0000-\u007F]*$"))
-        //                        {
-        //                            reversedText = ReverseTextForRTL(text);
-        //                            finalText = '\u2007' + reversedText;
-        //                            desiredFontSizeRatio = 0.5f; // Adjust this value as needed
-        //                            fontSize = textBoundingBoxHeight * 100 * desiredFontSizeRatio;
-        //                        }
-        //                        else
-        //                        {
-        //                            reversedText = text;
-        //                            finalText = reversedText;
-        //                            desiredFontSizeRatio = 1.0f; // Adjust this value as needed
-        //                            fontSize = textBoundingBoxHeight * 100 * desiredFontSizeRatio;
-        //                        }
-
-        //                        var boundingPolygon = word.BoundingPolygon;
-
-        //                        // Calculate coordinates of the rectangle
-        //                        float x1 = (float)(boundingPolygon[0].X * xMultiplicationFactor);
-        //                        float y1 = adjustedPageSize.Height - (float)(boundingPolygon[0].Y * yMultiplicationFactor);
-        //                        float x2 = (float)(boundingPolygon[2].X * xMultiplicationFactor);
-        //                        float y2 = adjustedPageSize.Height - (float)(boundingPolygon[2].Y * yMultiplicationFactor);
-
-        //                        // Calculate the dimensions of the rectangle
-        //                        float width2 = x2 - x1;
-        //                        float height2 = Math.Abs(y2 - y1);
-        //                        _logger.LogInformation(
-        //                   $"time taken before fontsize2 {sw.ElapsedMilliseconds} ms");
-        //                        sw.Restart();
-
-        //                        // Calculate the maximum font size that fits the rectangle
-        //                        float fontSize2 = CalculateMaxFontSize(word.Content, width2, height2, fontFilePath);
-        //                        _logger.LogInformation($"CalculateMaxFontSize: {sw.ElapsedMilliseconds} ms");
-        //                        sw.Restart();
-        //                        // Draw the text
-        //                        DrawTextWithinRectangle(pdfContentByte, word.Content, x1, y1, width2, height2, fontSize2, arabicBaseFont);
-        //                        _logger.LogInformation($"DrawTextWithinRectangle: {sw.ElapsedMilliseconds} ms");
-        //                        // Draw the rectangle
-        //                        //pdfContentByte.SetRGBColorStroke(255, 0, 0); // Set stroke color (red in this example)
-        //                        //pdfContentByte.Rectangle(x1, y1, x2 - x1, y2 - y1); // Draw rectangle
-        //                        //pdfContentByte.Stroke(); // Stroke the rectangle
-
-        //                    }
-        //                    catch (Exception ex)
-        //                    {
-        //                        continue;
-        //                    }
-
-
-        //                    //try
-        //                    //{
-        //                    //    float xMultiplicationFactor = (float)adjustedPageSize.Width / (float)recognizedForms[page - 1].Width;
-        //                    //    float yMultiplicationFactor = (float)adjustedPageSize.Height / (float)recognizedForms[page - 1].Height;
-
-        //                    //    float x = (float)(word.BoundingPolygon[0].X * xMultiplicationFactor);//working fix it t0 75
-        //                    //    float y = adjustedPageSize.Height - (float)word.BoundingPolygon[0].Y * yMultiplicationFactor - 10; // Invert Y-coordinate
-        //                    //    float height = (float)(word.BoundingPolygon[2].Y - word.BoundingPolygon[0].Y);
-
-        //                    //    string text = word.Content;
-
-        //                    //    //float fontSize = (float)(height * 75); //working fix it to 70
-        //                    //    float fontSize = (float)(height * 75); //working fix it to 70
-
-        //                    //    // Create a font
-        //                    //    //BaseFont baseFont = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.WINANSI, BaseFont.EMBEDDED);
-
-        //                    //    // Load a font that supports Arabic (e.g., Arial or Tahoma)
-        //                    //    BaseFont arabicBaseFont = BaseFont.CreateFont(fontFilePath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-
-        //                    //    //Set text rendering mode to invisible
-        //                    //    pdfContentByte.SetTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_INVISIBLE);
-
-
-        //                    //    // Begin text mode
-        //                    //    pdfContentByte.BeginText();
-
-        //                    //    //New Start----------------------
-
-        //                    //    // Define Arabic text direction (Right-to-Left)
-        //                    //    string reversedText = String.Empty;
-        //                    //    string finalText = String.Empty;
-
-        //                    //    //if (!Regex.IsMatch(text, "^[a-zA-Z0-9]*$"))
-        //                    //    // Check if the text contains non-ASCII characters
-        //                    //    if (!Regex.IsMatch(text, @"^[\u0000-\u007F]*$"))
-        //                    //    {
-        //                    //        reversedText = ReverseTextForRTL(text);
-        //                    //        //finalText =  reversedText;
-        //                    //        finalText = '\u2007' + reversedText;
-        //                    //        fontSize = (float)(height * 50);
-
-        //                    //    }
-        //                    //    else
-        //                    //    {
-        //                    //        reversedText = text;
-        //                    //        finalText = reversedText;
-        //                    //        fontSize = (float)(height * 100);
-        //                    //    }
-
-        //                    //    // New End---------------------------
-
-        //                    //    // Set font and size
-        //                    //    pdfContentByte.SetFontAndSize(arabicBaseFont, fontSize);
-
-        //                    //    // Set text position
-        //                    //    pdfContentByte.SetTextMatrix(x, y);
-
-        //                    //    // Add the text to the page
-        //                    //    pdfContentByte.ShowText(finalText);
-        //                    //    // End text mode
-        //                    //    pdfContentByte.EndText();
-        //                    //}
-        //                    //catch (Exception ex)
-        //                    //{
-        //                    //    continue;
-        //                    //}
-
-        //                }
-
-        //                _logger.LogInformation(
-        //                    $"Page {page} processed in {sw.ElapsedMilliseconds} ms");
-        //            }
-        //        }
-
-        //        // Close the stamper and save the modified PDF
-        //        pdfStamper.Close();
-        //        pdfReader.Close();
-
-        //        byte[] modifiedPdfBytes = outputStream.ToArray();
-
-
-        //        // Create a new file in the Data Lake store
-        //        string newblobFolderNameForOCR = newblobFolderName.Replace("BooksOriginal", "Books");
-        //        fileClient2 = fileSystemClient.GetFileClient(newblobFolderNameForOCR + "/ocr_" + uniqueFileName);
-
-        //        // Open the source file stream
-        //        using (Stream stream = new MemoryStream(modifiedPdfBytes))
-        //        {
-        //            var transferOptions = new StorageTransferOptions
-        //            {
-        //                MaximumTransferSize = 4 * 1024 * 1024,    // Set the maximum transfer size (optional)
-        //                InitialTransferSize = 4 * 1024 * 1024      // Set the initial transfer size (optional)
-        //            };
-
-        //            var uploadOptions = new DataLakeFileUploadOptions
-        //            {
-        //                TransferOptions = transferOptions,
-        //                ProgressHandler = new Progress<long>(progress => Console.WriteLine($"Uploaded {progress} bytes")) // Progress handler (optional)
-        //            };
-
-        //            await fileClient2.UploadAsync(stream, uploadOptions);
-
-        //        }
-
-
-        //        // Retrieve the uploaded file properties
-        //        var propertiesNew2 = await fileClient2.GetPropertiesAsync();
-
-        //        //End logic here
-
-
-        //        string[] allTitle = GetTitlesbyId(bookModel.Category, bookModel.SubCategory, bookModel.Country, bookModel.Language, bookModel.BookType);
-
-        //        Dictionary<string, string> myDict = new Dictionary<string, string>();
-        //        PropertyInfo[] properties = typeof(BookModel).GetProperties();
-        //        foreach (PropertyInfo property in properties)
-        //        {
-        //            object value = property.GetValue(bookModel);
-        //            if (value != null)
-        //            {
-        //                if (property.Name == "Category")
-        //                {
-        //                    string propertyValue = allTitle[0].Trim();
-        //                    //propertyValue = RemoveSpecialCharacters(propertyValue);
-        //                    var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(propertyValue);
-        //                    string base64String = System.Convert.ToBase64String(plainTextBytes);
-
-        //                    myDict.Add(property.Name, base64String);
-
-        //                }
-        //                else if (property.Name == "SubCategory")
-        //                {
-        //                    string propertyValue = allTitle[1].Trim();
-        //                    //propertyValue = RemoveSpecialCharacters(propertyValue);
-        //                    var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(propertyValue);
-        //                    string base64String = System.Convert.ToBase64String(plainTextBytes);
-
-        //                    myDict.Add(property.Name, base64String);
-
-        //                }
-        //                else if (property.Name == "BookType")
-        //                {
-        //                    string propertyValue = allTitle[4].Trim();
-        //                    propertyValue = RemoveSpecialCharacters(propertyValue);
-
-        //                    myDict.Add(property.Name, propertyValue);
-
-        //                }
-        //                else if (property.Name == "Language")
-        //                {
-        //                    string propertyValue = allTitle[3].Trim();
-        //                    propertyValue = RemoveSpecialCharacters(propertyValue);
-
-        //                    myDict.Add(property.Name, propertyValue);
-
-        //                }
-        //                else if (property.Name == "Country")
-        //                {
-        //                    string propertyValue = allTitle[2].Trim();
-        //                    propertyValue = RemoveSpecialCharacters(propertyValue);
-
-        //                    myDict.Add(property.Name, propertyValue);
-        //                }
-        //                else if (property.Name == "ArabicKeywords" || property.Name == "BookTitleArabic" || property.Name == "Description" || property.Name == "Author" || property.Name == "Version" || property.Name == "VolumeNumber" || property.Name == "Publication")
-        //                {
-        //                    string propertyValue = value.ToString().Trim();
-
-        //                    var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(propertyValue);
-        //                    string base64String = System.Convert.ToBase64String(plainTextBytes);
-
-        //                    myDict.Add(property.Name, base64String);
-        //                }
-        //                else
-        //                {
-        //                    string propertyValue = value.ToString().Trim();
-        //                    propertyValue = RemoveSpecialCharacters(propertyValue);
-
-        //                    myDict.Add(property.Name, propertyValue);
-        //                }
-        //            }
-        //        }
-
-        //        await fileClient2.SetMetadataAsync(myDict);
-
-        //        string appServiceUrl = configuration["AppServiceUrl"];
-        //        string url = appServiceUrl + "/api/Books/GetBlobData?url=" + fileClient2.Uri.OriginalString.Replace("ocr_", "");
-        //        return url;
-        //    }
-        //    else
-        //    {
-        //        string appServiceUrl = configuration["AppServiceUrl"];
-        //        string url = appServiceUrl + "/api/Books/GetBlobData?url=" + fileClient.Uri.OriginalString;
-        //        return url;
-        //    }
-        //}
-
         public async Task<string> UploadFile1toBlob(IFormFile item, string blobFolderName, BookModel bookModel)
         {
             if (item == null) return string.Empty;
 
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                  ?? "Development";
+
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
                 .Build();
-
             // Read uploaded file once
             byte[] fileBytes;
             using (var ms = new MemoryStream())
@@ -842,9 +442,13 @@ namespace eLibrary.Services
         {
             if (item == null) return string.Empty;
 
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                  ?? "Development";
+
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
                 .Build();
 
             // Read uploaded file once
@@ -1511,22 +1115,6 @@ namespace eLibrary.Services
             {
                 approverAttachmentFileBlobUrl = await UpdateOnlyFileinBlob(bookModel.approverattachmentfile, folderNameForApproverAttachmentFile, updatedMetadata);
             }
-            //var updatedMetadata = await UpdateOnlyMetadatainBlob(bookFile, folderNameForBookFile, bookModel);
-
-            //if (bookFile != null)
-            //{
-            //    bookFileBlobUrl = UpdateOnlyFileinBlob(bookFile, folderNameForBookFile, updatedMetadata).Result;
-            //}
-
-            //if (bookThumbnailFile != null)
-            //{
-            //    thumbnailFileBlobUrl = UpdateOnlyFileinBlob(bookThumbnailFile, folderNameForBookThumbnailFile, updatedMetadata).Result;
-            //}
-
-            //if (bookApproverAttachmentFile != null)
-            //{
-            //    approverAttachmentFileBlobUrl = UpdateOnlyFileinBlob(bookApproverAttachmentFile, folderNameForApproverAttachmentFile, updatedMetadata).Result;
-            //}
 
             BlobUrls[0] = bookFileBlobUrl;
             BlobUrls[1] = thumbnailFileBlobUrl;
@@ -1587,10 +1175,14 @@ namespace eLibrary.Services
             //string saasUrl = Convert.ToString(fileClient.GenerateSasUri(Azure.Storage.Sas.DataLakeSasPermissions.Read, DateTime.UtcNow.AddMonths(6)));
             //return saasUrl;
 
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                  ?? "Development";
+
             var configuration = new ConfigurationBuilder()
-       .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-       .AddJsonFile("appsettings.json")
-       .Build();
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
+                .Build();
             // Read the file path from the configuration
 
             string appServiceUrl = configuration["AppServiceUrl"];
@@ -2227,10 +1819,14 @@ namespace eLibrary.Services
                 "ArabicKeywords," +
                 "ArabicKeywordsInArabic";
 
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                  ?? "Development";
+
             var configuration = new ConfigurationBuilder()
-                           .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                           .AddJsonFile("appsettings.json")
-                           .Build();
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
+                .Build();
             // Read the file path from the configuration
             string searchServiceUrl = configuration["SearchServiceUrl"];
             string indexName = configuration["searchIndexName"];
@@ -2498,10 +2094,14 @@ namespace eLibrary.Services
             DataLakeDirectoryClient directoryClient = fileSystemClient.GetDirectoryClient(blobFolderName);
             directoryClient.DeleteIfExists();
 
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                  ?? "Development";
+
             var configuration = new ConfigurationBuilder()
-      .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-      .AddJsonFile("appsettings.json")
-      .Build();
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
+                .Build();
             // Read the file path from the configuration
             string searchServiceUrl = configuration["SearchServiceUrl"];
             string searchServiceKey = configuration["SearchServiceAPIKey"];
@@ -2560,10 +2160,14 @@ namespace eLibrary.Services
 
         public DataLakeFileClient DownloadFile(string url)
         {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                  ?? "Development";
+
             var configuration = new ConfigurationBuilder()
-       .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-       .AddJsonFile("appsettings.json")
-       .Build();
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
+                .Build();
             // Read the file path from the configuration
             string containerName = configuration["ContainerName"];
 
@@ -2647,10 +2251,14 @@ namespace eLibrary.Services
 
         public bool DeleteBooksFromSearchIndex()
         {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                  ?? "Development";
+
             var configuration = new ConfigurationBuilder()
-    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-    .AddJsonFile("appsettings.json")
-    .Build();
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
+                .Build();
             // Read the file path from the configuration
             string searchServiceUrl = configuration["SearchServiceUrl"];
             string searchServiceKey = configuration["SearchServiceAPIKey"];
@@ -2717,10 +2325,14 @@ namespace eLibrary.Services
 
         public async Task<string> UploadDeletedApprovalFiletoBlob(IFormFile item, string blobFolderName)
         {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                  ?? "Development";
+
             var configuration = new ConfigurationBuilder()
-            .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            .AddJsonFile("appsettings.json")
-            .Build();
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
+                .Build();
 
             FileInfo fi = new FileInfo(item.FileName);
             string extn = fi.Extension;
@@ -2768,10 +2380,14 @@ namespace eLibrary.Services
                 string arabicText = String.Empty;
                 string final_search_text = String.Empty;
 
+                var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                  ?? "Development";
+
                 var configuration = new ConfigurationBuilder()
-  .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-  .AddJsonFile("appsettings.json")
-  .Build();
+                    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                    .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: false)
+                    .Build();
                 // Read the file path from the configuration
                 string YourFormRecognizerEndpoint = configuration["YourFormRecognizerEndpoint"];
                 string YourFormRecognizerApiKey = configuration["YourFormRecognizerApiKey"];
